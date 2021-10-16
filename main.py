@@ -1,6 +1,9 @@
 import sys
+import pickle
+import json
 
 __session_file__ = "db/session.db"
+__item_file__ = "db/item.db"
 
 def view():
     f = open(__session_file__,"r")
@@ -12,12 +15,32 @@ def login(username):
     f.write(username)
     f.close()
 
+class Item:
+    def __init__(self):
+        with open(__item_file__) as item_file:
+            print(item_file.readline())
+
+
+    def save(self):
+        _data_={
+            "name":self.name,
+            "price":self.price,
+            "sellingPrice":self.sellingPrice
+        }
+        with open(__item_file__,"w") as item_file:
+            json.dump(_data_,item_file)
 
 def item_create(name,price,selling_price):
-    print(name,price,selling_price)
+    item = Item()
+    item.name = name
+    item.price = price
+    item.sellingPrice =selling_price
+    item.save()
 
 def item_all():
     print("Item All")
+    with open(__item_file__) as item_file:
+        print(item_file.readline())
 
 def item_view(id):
     print("View item ",id)
