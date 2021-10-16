@@ -1,5 +1,5 @@
 import sys
-import pickle
+import os
 import json
 
 __session_file__ = "db/session.db"
@@ -17,18 +17,25 @@ def login(username):
 
 class Item:
     def __init__(self):
-        with open(__item_file__) as item_file:
-            print(item_file.readline())
-
+        if_exits = os.path.exists(__item_file__)
+        if if_exits:
+            with open(__item_file__) as item_file:
+                print(type(item_file.readline()))
+        else:
+            print("No file exit")
+            
 
     def save(self):
+        num_lines = sum(1 for line in open(__item_file__))
+        num_lines = num_lines+1
         _data_={
+            "id":num_lines,
             "name":self.name,
             "price":self.price,
             "sellingPrice":self.sellingPrice
         }
-        with open(__item_file__,"w") as item_file:
-            json.dump(_data_,item_file)
+        with open(__item_file__,"a") as item_file:
+            json.dump(_data_,item_file,indent=1)
 
 def item_create(name,price,selling_price):
     item = Item()
