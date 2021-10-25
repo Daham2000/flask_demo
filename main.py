@@ -1,10 +1,19 @@
 import sys
 import os
 import json
+import sqlite3
 
-__session_file__ = "db/session.db"
-__item_file__ = "db/item.db"
+__db_location__ = "db"
+__session_file__ = f"{__db_location__}/session.db"
+__item_file__ = f"{__db_location__}/item.db"
 
+def init():
+    if_exits = os.path.exists(__db_location__)
+    if if_exits==False:
+        os.makedirs(__db_location__)
+    con = sqlite3.connect(__session_file__)
+    print(con)
+    
 def view():
     f = open(__session_file__,"r")
     username=f.readline()
@@ -60,6 +69,8 @@ if __name__=="__main__":
     command = arguments[1]
     params = arguments[2:]
     
+    init()
+
     if section == "user":
         if command == "login":
            login(*params)    
