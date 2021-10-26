@@ -1,7 +1,6 @@
 import sys
 import os
 import json
-import sqlite3
 
 __db_location__ = "db"
 __session_file__ = f"{__db_location__}/session.db"
@@ -11,8 +10,6 @@ def init():
     if_exits = os.path.exists(__db_location__)
     if if_exits==False:
         os.makedirs(__db_location__)
-    con = sqlite3.connect(__session_file__)
-    print(con)
     
 def view():
     f = open(__session_file__,"r")
@@ -45,7 +42,11 @@ class Item:
             "sellingPrice":self.sellingPrice
         }
         with open(__item_file__,"a") as item_file:
-            json.dump(_data_,item_file,indent=1)
+            item_file.write(json.dumps(_data_))
+
+    def getAll(self):
+        data = open(__item_file__,"r")
+        print(data.readlines())
 
 def item_create(name,price,selling_price):
     item = Item()
@@ -55,9 +56,9 @@ def item_create(name,price,selling_price):
     item.save()
 
 def item_all():
-    print("Item All")
-    with open(__item_file__) as item_file:
-        print(item_file.read())
+    print("get all items...")
+    item = Item()
+    items = item.getAll()
 
 def item_view(id):
     print("View item ",id)
