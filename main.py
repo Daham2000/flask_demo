@@ -31,6 +31,7 @@ class Item:
             with open(__item_file__) as item_file:
                 print(type(item_file.readline()))
         else:
+            open(__item_file__,"w")
             print("No file exit")
             
 
