@@ -57,11 +57,10 @@ def item_create(name,price,selling_price):
 def item_all():
     print("Item All")
     with open(__item_file__) as item_file:
-        print(item_file.readline())
+        print(item_file.read())
 
 def item_view(id):
     print("View item ",id)
-
 
 if __name__=="__main__":
     arguments = sys.argv[1:]
