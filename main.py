@@ -1,16 +1,19 @@
+from sqlite3.dbapi2 import Time
 import sys
 import os
-import json
+import uuid 
+import sqlite3
 
 __db_location__ = "db"
 __session_file__ = f"{__db_location__}/session.db"
 __item_file__ = f"{__db_location__}/item.db"
+cur = ""
 
 def init():
     if_exits = os.path.exists(__db_location__)
     if if_exits==False:
         os.makedirs(__db_location__)
-    
+
 def view():
     f = open(__session_file__,"r")
     username=f.readline()
@@ -24,29 +27,29 @@ def login(username):
 class Item:
     def __init__(self):
         if_exits = os.path.exists(__item_file__)
-        if if_exits:
-            with open(__item_file__) as item_file:
-                print(type(item_file.readline()))
-        else:
-            open(__item_file__,"w")
-            print("No file exit")
-            
 
     def save(self):
-        num_lines = sum(1 for line in open(__item_file__))
-        num_lines = num_lines+1
         _data_={
-            "id":num_lines,
+            "id":Time,
             "name":self.name,
             "price":self.price,
             "sellingPrice":self.sellingPrice
         }
-        with open(__item_file__,"a") as item_file:
-            item_file.write(json.dumps(_data_))
+        conItem = sqlite3.connect(__item_file__)  
+        cur = conItem.cursor()
+        # cur.execute('''CREATE TABLE items
+        #        (id text, name text,price real, sellingPrice real)''')
+        cur.execute("INSERT INTO items (id,name,price,sellingPrice) VALUES (?,?,?,?)",(str(uuid.uuid1()),self.name,self.price,self.sellingPrice))
+        conItem.commit()
+        conItem.close()
 
     def getAll(self):
-        data = open(__item_file__,"r")
-        print(data.readlines())
+        conItem = sqlite3.connect(__item_file__)  
+        cur = conItem.cursor()
+        for row in cur.execute('SELECT * FROM items ORDER BY price'):
+            print(row)
+        conItem.commit()
+        conItem.close()
 
 def item_create(name,price,selling_price):
     item = Item()
@@ -58,7 +61,7 @@ def item_create(name,price,selling_price):
 def item_all():
     print("get all items...")
     item = Item()
-    items = item.getAll()
+    item.getAll()
 
 def item_view(id):
     print("View item ",id)
