@@ -51,6 +51,15 @@ class Item:
         conItem.commit()
         conItem.close()
 
+    def getSingleItem(self):
+        conItem = sqlite3.connect(__item_file__)  
+        cur = conItem.cursor()
+        items = cur.execute("SELECT * FROM items WHERE name = '%s'" % self.name)
+        for item in items:
+            print(item)
+        conItem.commit()
+        conItem.close()
+
 def item_create(name,price,selling_price):
     item = Item()
     item.name = name
@@ -63,8 +72,11 @@ def item_all():
     item = Item()
     item.getAll()
 
-def item_view(id):
-    print("View item ",id)
+def item_view(name):
+    print("View item ",name)
+    item = Item()
+    item.name = name
+    item.getSingleItem()
 
 if __name__=="__main__":
     arguments = sys.argv[1:]
