@@ -3,11 +3,14 @@ import sys
 import os
 import uuid 
 import sqlite3
+from collections import namedtuple
 
 __db_location__ = "db"
 __session_file__ = f"{__db_location__}/session.db"
 __item_file__ = f"{__db_location__}/item.db"
 cur = ""
+
+User = namedtuple("User","id name")
 
 def init():
     if_exits = os.path.exists(__db_location__)
@@ -15,31 +18,38 @@ def init():
         os.makedirs(__db_location__)
 
 def view():
-    f = open(__session_file__,"r")
-    username=f.readline()
-    print(username)
+    open(__session_file__,"r")
+    conUser = sqlite3.connect(__session_file__)  
+    cur = conUser.cursor()
+    user = cur.execute("SELECT * FROM users limit 1")
+    for u in user:
+        us = User(*u)
+        print(us.id)
+        print(us.name)
+    conUser.commit()
+    conUser.close()
 
 def login(username):
-    f = open(__session_file__,"w")
-    f.write(username)
-    f.close()
+    open(__session_file__,"w")
+    conUser = sqlite3.connect(__session_file__)
+    cur = conUser.cursor()
+    cur.execute('''CREATE TABLE IF NOT EXISTS users
+               (id text, name text)''')
+    cur.execute("INSERT INTO users (id,name) VALUES (?,?)",(str(uuid.uuid1()),username))
+    conUser.commit()
+    conUser.close()
+    
 
 class Item:
     def __init__(self):
-        if_exits = os.path.exists(__item_file__)
+        os.path.exists(__item_file__)
 
     def save(self):
-        _data_={
-            "id":Time,
-            "name":self.name,
-            "price":self.price,
-            "sellingPrice":self.sellingPrice
-        }
         conItem = sqlite3.connect(__item_file__)  
         cur = conItem.cursor()
-        # cur.execute('''CREATE TABLE items
-        #        (id text, name text,price real, sellingPrice real)''')
-        cur.execute("INSERT INTO items (id,name,price,sellingPrice) VALUES (?,?,?,?)",(str(uuid.uuid1()),self.name,self.price,self.sellingPrice))
+        cur.execute('''CREATE TABLE IF NOT EXISTS items
+               (id text, name text,price real, sellingPrice real, qty int)''')
+        cur.execute("INSERT INTO items (id,name,price,sellingPrice,qty) VALUES (?,?,?,?,?)",(str(uuid.uuid1()),self.name,self.price,self.sellingPrice,self.qty))
         conItem.commit()
         conItem.close()
 
@@ -54,17 +64,18 @@ class Item:
     def getSingleItem(self):
         conItem = sqlite3.connect(__item_file__)  
         cur = conItem.cursor()
-        items = cur.execute("SELECT * FROM items WHERE name = '%s'" % self.name)
+        items = cur.execute("SELECT * FROM items WHERE name LIKE '%s'" % self.name)
         for item in items:
             print(item)
         conItem.commit()
         conItem.close()
 
-def item_create(name,price,selling_price):
+def item_create(name,price,selling_price,qty):
     item = Item()
     item.name = name
     item.price = price
-    item.sellingPrice =selling_price
+    item.sellingPrice = selling_price
+    item.qty = qty
     item.save()
 
 def item_all():

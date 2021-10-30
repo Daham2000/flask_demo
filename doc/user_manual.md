@@ -7,7 +7,7 @@
 ```
 user login <username>
 ```
-### View User
+### View current user
 
 ```
 user view
@@ -15,19 +15,19 @@ user view
 
 ## Item
 
-### Create
+### Add Item
 
 ```cmd
 item create <name> <price> <selling_price>
 ```
 
-### All
+### Get all item
 
 ```cmd
 item all
 ```
 
-### View
+### View a item
 
 ```cmd
 item view <id>
@@ -35,8 +35,7 @@ item view <id>
 
 ## Order
 
-
-### View
+### Place order
 
 ```cmd
 order place <id>
