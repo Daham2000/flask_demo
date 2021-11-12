@@ -38,7 +38,7 @@ item view <id>
 ### Place order
 
 ```cmd
-order place <id>
+order place <id> <qty>
 ```
 
 ## Customer

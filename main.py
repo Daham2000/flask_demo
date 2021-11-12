@@ -8,6 +8,7 @@ from collections import namedtuple
 __db_location__ = "db"
 __session_file__ = f"{__db_location__}/session.db"
 __item_file__ = f"{__db_location__}/item.db"
+__order_file__ = f"{__db_location__}/order.db"
 cur = ""
 
 User = namedtuple("User","id name")
@@ -26,6 +27,7 @@ def view():
         us = User(*u)
         print(us.id)
         print(us.name)
+        return us.name
     conUser.commit()
     conUser.close()
 
@@ -69,6 +71,15 @@ class Item:
             print(item)
         conItem.commit()
         conItem.close()
+    
+    def getSingleItemByID(self):
+        conItem = sqlite3.connect(__item_file__)  
+        cur = conItem.cursor()
+        items = cur.execute("SELECT sellingPrice FROM items WHERE id LIKE '%s'" % self.id)
+        for item in items:
+            return item
+        conItem.commit()
+        conItem.close()
 
 def item_create(name,price,selling_price,qty):
     item = Item()
@@ -88,6 +99,34 @@ def item_view(name):
     item = Item()
     item.name = name
     item.getSingleItem()
+
+class Order:
+    def __init__(self):
+        os.path.exists(__order_file__)
+
+    def save(self):
+        cus_name = view()
+        item = Item()
+        item.id = self.item_id
+        item_price = item.getSingleItemByID()
+        qty = int(self.qty)
+        order_total = item_price[0] * qty
+
+        conOrder = sqlite3.connect(__order_file__)  
+        cur = conOrder.cursor()
+        cur.execute('''CREATE TABLE IF NOT EXISTS orders
+               (id text, cus_name text,total real, item_id text, qty int)''')
+        cur.execute("INSERT INTO orders (id,cus_name,total,item_id,qty) VALUES (?,?,?,?,?)",
+        (str(uuid.uuid1()),cus_name,order_total,self.item_id,qty))
+            
+        conOrder.commit()
+        conOrder.close()
+
+def order_place(item_id,qty):
+    order = Order()
+    order.item_id = item_id
+    order.qty = qty
+    order.save()
 
 if __name__=="__main__":
     arguments = sys.argv[1:]
@@ -110,3 +149,6 @@ if __name__=="__main__":
             item_all()
         elif command == "view":
             item_view(*params)
+    elif section == "order":
+        if command == "place":
+            order_place(*params)
