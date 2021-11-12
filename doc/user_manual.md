@@ -18,7 +18,7 @@ user view
 ### Add Item
 
 ```cmd
-item create <name> <price> <selling_price>
+item create <name> <price> <selling_price> <qty>
 ```
 
 ### Get all item
@@ -30,7 +30,7 @@ item all
 ### View a item
 
 ```cmd
-item view <id>
+item view <name>
 ```
 
 ## Order
